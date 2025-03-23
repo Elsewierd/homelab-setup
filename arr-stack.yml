@@ -1,0 +1,96 @@
+version: '3.8'
+
+networks:
+  my-bridge:
+    external: 
+      name: my-bridge
+  servarr:
+    external:
+      name: servarr
+
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    network_mode: "container: gluetun"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG}/prowlarr:/config
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    networks:
+      servarr:
+        ipv4_address: 10.1.1.3
+
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG}/sonarr:/config
+      - ${STORAGE}/data:/data
+    ports:
+      - 8989:${sonarr}
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    networks:
+      servarr:
+        ipv4_address: 10.1.1.4
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG}/radarr:/config
+      - ${STORAGE}/data:/data
+    ports:
+      - 7878:${radarr}
+    restart: unless-stopped
+
+  lidarr:
+    container_name: lidarr
+    image: lscr.io/linuxserver/lidarr:latest
+    networks:
+      servarr:
+        - ipv4_address: 10.1.1.5
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG}/lidarr:/config
+      - ${STORAGE}/data:/data
+    ports:
+      - 8686:${lidarr}
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    networks:
+      servarr:
+        - ipv4_address: 10.1.1.6
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG}/bazarr:/config
+      - ${STORAGE}/data:/data
+    ports:
+      - 6767:${bazarr}
+    restart: unless-stopped

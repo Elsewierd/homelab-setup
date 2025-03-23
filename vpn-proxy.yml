@@ -1,37 +1,14 @@
-# Contains: 
-#   Heimdall Dashboard
-#   Gluetun VPN Client
-#   Deunhealth Container Restart
-#   NGINX Web Server
-
 version: '3.8'
 
 networks:
   my-bridge:
-    external:
+    external: 
       name: my-bridge
   servarr:
     external:
       name: servarr
 
 services:
-  heimdall:
-    image: lscr.io/linuxserver/heimdall
-    container_name: heimdall
-    networks:
-      my-bridge:
-        ipv4_address: 10.0.1.100
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${CONFIG}/heimdall:/config
-    ports:
-      - "80:80"
-      - "443:443"
-    restart: unless-stopped
-
   gluetun:
     image: qmcgaw/gluetun
     container_name: gluetun
