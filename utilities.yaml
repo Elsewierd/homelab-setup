@@ -70,3 +70,20 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
+
+  reverse-proxy:
+    image: jwilder/nginx-proxy:latest
+    container_name: reverse-proxy
+    volumes:
+      - ${HTML}:/usr/share/nginx/html
+      - ${DHPARAM}:/etc/nginx/dhparam
+      - ${VHOST}:/etc/nginx/vhost.d
+      - ${CERTS}:/etc/nginx/certs
+      - /run/docker.sock:/tmp/docker.sock:ro
+    restart: always
+    networks:
+      - my-bridge
+      - servarr
+    ports:
+      - "80:80"
+      - "443:443"
