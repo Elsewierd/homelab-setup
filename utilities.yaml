@@ -1,18 +1,13 @@
-# Contains: 
-#   Heimdall Dashboard
-#   Gluetun VPN Client
-#   Deunhealth Container Restart
-#   NGINX Web Server
-
 version: '3.8'
 
 networks:
   my-bridge:
     external:
-      name: my-bridge
+      name: my-bridge # subnet 10.1.0.0/24
+
   servarr:
     external:
-      name: servarr
+      name: servarr # subnet 10.1.1.0/24
 
 services:
   heimdall:
@@ -20,7 +15,7 @@ services:
     container_name: heimdall
     networks:
       my-bridge:
-        ipv4_address: 10.0.1.100
+        ipv4_address: 10.1.0.100
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -28,8 +23,8 @@ services:
     volumes:
       - ${CONFIG}/heimdall:/config
     ports:
-      - "80:80"
-      - "443:443"
+      - "13080:80"
+      - "13443:443"
     restart: unless-stopped
 
   gluetun:
@@ -37,16 +32,16 @@ services:
     container_name: gluetun
     cap_add:
       - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
     networks:
       servarr:
         ipv4_address: 10.1.1.2
+    devices:
+      - /dev/net/tun:/dev/net/tun
     ports:
-      - ${qb_UI}:8080 # qbittorrent web interface
-      - ${qb_TOR}:6881 # qbittorrent torrent port
-      - ${nzb_UI}:6789 # nzbget
-      - ${prowl_UI}:9696 # prowlarr
+      - 8080:${qb_UI}
+      - 6881:${qp_TOR}
+      - 6789:${nzb_UI}
+      - 9696:${prowl_UI}
     volumes:
       - ${CONFIG}/gluetun:/gluetun
     environment:
@@ -72,19 +67,6 @@ services:
       - LOG_LEVEL=info
       - HEALTH_SERVER_ADDRESS=127.0.0.1:9999
       - TZ=${TZ}
-    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
-  nginx:
-    image: lscr.io/linuxserver/nginx
-    container_name: nginx
-    networks:
-      - my-bridge
-      - servarr
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${CONFIG}/nginx:/config
+    restart: always
