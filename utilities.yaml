@@ -1,21 +1,22 @@
 version: '3.8'
 
 networks:
-  my-bridge:
-    external:
-      name: my-bridge # subnet 10.1.0.0/24
 
   servarr:
-    external:
-      name: servarr # subnet 10.1.1.0/24
+    name: servarr
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24
+        - gateway: 10.0.1.1
 
 services:
   heimdall:
     image: lscr.io/linuxserver/heimdall
     container_name: heimdall
     networks:
-      my-bridge:
-        ipv4_address: 10.1.0.100
+      servarr:
+        ipv4_address: 10.0.1.100
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -23,8 +24,8 @@ services:
     volumes:
       - ${CONFIG}/heimdall:/config
     ports:
-      - "13080:80"
-      - "13443:443"
+      - 40080:80
+      - 40443:443
     restart: unless-stopped
 
   gluetun:
@@ -34,7 +35,7 @@ services:
       - NET_ADMIN
     networks:
       servarr:
-        ipv4_address: 10.1.1.2
+        ipv4_address: 10.0.1.2
     devices:
       - /dev/net/tun:/dev/net/tun
     ports:
@@ -71,19 +72,18 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
 
-  reverse-proxy:
-    image: jwilder/nginx-proxy:latest
-    container_name: reverse-proxy
-    volumes:
-      - ${HTML}:/usr/share/nginx/html
-      - ${DHPARAM}:/etc/nginx/dhparam
-      - ${VHOST}:/etc/nginx/vhost.d
-      - ${CERTS}:/etc/nginx/certs
-      - /run/docker.sock:/tmp/docker.sock:ro
-    restart: always
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager
+    container_name: nginx-proxy-manager
     networks:
-      - my-bridge
-      - servarr
+      servarr:
+        - ipv4_address: 10.0.1.255
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 81:81
+      - 443:443
+    volumes:
+      - ${CONFIG}/npm_data:/data
+      - ${CONFIG}/npm_letsencrypt:etc/letsencrypt
+      - var/run/docker.sock:var/run/docker.sock
+    restart: always
