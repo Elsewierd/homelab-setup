@@ -62,7 +62,7 @@ services:
     image: lscr.io/linuxserver/lidarr:latest
     networks:
       servarr:
-        - ipv4_address: 10.0.1.13
+        ipv4_address: 10.0.1.13
     ports:
       - 8686:${lidarr}
     environment:
@@ -80,7 +80,7 @@ services:
     container_name: bazarr
     networks:
       servarr:
-        - ipv4_address: 10.0.1.14
+        ipv4_address: 10.0.1.14
     ports:
       - 6767:${bazarr}
     environment:

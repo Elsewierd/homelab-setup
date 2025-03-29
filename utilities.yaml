@@ -8,9 +8,9 @@ networks:
     ipam:
       config:
         - subnet: 10.0.1.0/24
-        - gateway: 10.0.1.1
 
 services:
+
   heimdall:
     image: lscr.io/linuxserver/heimdall
     container_name: heimdall
@@ -40,7 +40,7 @@ services:
       - /dev/net/tun:/dev/net/tun
     ports:
       - 8080:${qb_UI}
-      - 6881:${qp_TOR}
+      - 6881:${qb_TOR}
       - 6789:${nzb_UI}
       - 9696:${prowl_UI}
     volumes:
@@ -77,13 +77,13 @@ services:
     container_name: nginx-proxy-manager
     networks:
       servarr:
-        - ipv4_address: 10.0.1.255
+        ipv4_address: 10.0.1.200
     ports:
       - 80:80
       - 81:81
       - 443:443
     volumes:
       - ${CONFIG}/npm_data:/data
-      - ${CONFIG}/npm_letsencrypt:etc/letsencrypt
-      - var/run/docker.sock:var/run/docker.sock
+      - ${CONFIG}/npm_letsencrypt:/etc/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: always

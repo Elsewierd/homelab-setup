@@ -32,7 +32,7 @@ services:
     image: fallenbagel/jellyseerr:latest
     networks:
       servarr:
-        ipv4_address: 10.1.0.103
+        ipv4_address: 10.0.1.103
     ports:
       - 5055:${jseerr_UI}
     environment:
@@ -48,7 +48,7 @@ services:
     container_name: plex
     networks:
       servarr:
-        ipv4_address: 10.1.0.4
+        ipv4_address: 10.0.1.4
     ports:
       - 32400:${plex_SERV}
       - 8324:${plex_ROKU}
@@ -72,9 +72,9 @@ services:
     container_name: overseerr
     networks:
       servarr:
-        ipv4_address: 10.1.0.104
+        ipv4_address: 10.0.1.104
     ports:
-      - 45055:${overseer_UI}
+      - 45055:${overseerr_UI}
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
